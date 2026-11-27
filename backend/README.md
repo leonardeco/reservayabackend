@@ -38,6 +38,10 @@ Todas las rutas empiezan por `/api/v1`. Los errores responden `{"detail": "<codi
 | HU01 | `GET /restaurantes/{slug}/disponibilidad?fecha=&personas=` | Franjas del día (`libre` / `agotada`) |
 | HU02 | `POST /restaurantes/{slug}/reservas` | Crea la reserva, asigna mesa y devuelve el código `RY-AAAAMMDD-NNNN` |
 | HU03 | `POST /auth/login` | Usuario y contraseña → token para el panel |
+| HU05 | `GET /admin/restaurante` | Perfil del restaurante del administrador |
+| HU05 | `PUT /admin/restaurante` | Guarda el perfil en la base de datos |
+
+Las rutas `/admin/*` piden la cabecera `Authorization: Bearer <token>`.
 
 ### Errores más comunes
 
@@ -61,8 +65,8 @@ Todas las rutas empiezan por `/api/v1`. Los errores responden `{"detail": "<codi
 | Capa | Carpeta | Clases principales |
 |---|---|---|
 | Modelos (tablas) | `app/models/` | `Restaurante`, `Mesa`, `HorarioTurno`, `BloqueoFecha`, `Reserva`, `Administrador` |
-| Esquemas (entrada/salida) | `app/schemas/` | `RestauranteRead`, `DisponibilidadRead`, `ReservaCrear`, `ReservaCreada`, `LoginEntrada` |
-| Servicios (reglas) | `app/services/` | `calcular_disponibilidad`, `ReservaService`, `AuthService` |
+| Esquemas (entrada/salida) | `app/schemas/` | `RestauranteRead`, `DisponibilidadRead`, `ReservaCrear`, `ReservaCreada`, `LoginEntrada`, `Perfil` |
+| Servicios (reglas) | `app/services/` | `calcular_disponibilidad`, `ReservaService`, `AuthService`, `PanelService` |
 | Errores | `app/services/errores.py` | `ErrorDeNegocio` y sus subclases, cada una con su código HTTP |
 | Seguridad | `app/core/seguridad.py` | `HashContrasena`, `FirmadorTokens` |
 | Rutas | `app/routers/` | Reciben la petición y delegan en los servicios |

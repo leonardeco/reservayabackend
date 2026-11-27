@@ -399,6 +399,76 @@
           }
         }
       }
+    },
+    "/api/v1/admin/restaurante": {
+      "get": {
+        "tags": [
+          "panel del administrador"
+        ],
+        "summary": "Ver Perfil",
+        "operationId": "ver_perfil_api_v1_admin_restaurante_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Perfil"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "panel del administrador"
+        ],
+        "summary": "Guardar Perfil",
+        "operationId": "guardar_perfil_api_v1_admin_restaurante_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PerfilActualizar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Perfil"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -556,6 +626,139 @@
           "slug"
         ],
         "title": "LoginRespuesta"
+      },
+      "Perfil": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "categoria": {
+            "type": "string",
+            "title": "Categoria"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "direccion": {
+            "type": "string",
+            "title": "Direccion"
+          },
+          "telefono": {
+            "type": "string",
+            "title": "Telefono"
+          },
+          "web": {
+            "type": "string",
+            "title": "Web"
+          },
+          "horario": {
+            "type": "string",
+            "title": "Horario"
+          },
+          "capacidad": {
+            "type": "integer",
+            "title": "Capacidad"
+          },
+          "precio": {
+            "type": "string",
+            "title": "Precio"
+          },
+          "imagen": {
+            "type": "string",
+            "title": "Imagen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "categoria",
+          "descripcion",
+          "direccion",
+          "telefono",
+          "web",
+          "horario",
+          "capacidad",
+          "precio",
+          "imagen"
+        ],
+        "title": "Perfil"
+      },
+      "PerfilActualizar": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nombre"
+          },
+          "categoria": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Categoria"
+          },
+          "descripcion": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Descripcion"
+          },
+          "direccion": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Direccion"
+          },
+          "telefono": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Telefono"
+          },
+          "web": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0,
+            "title": "Web"
+          },
+          "horario": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Horario"
+          },
+          "precio": {
+            "type": "string",
+            "enum": [
+              "$",
+              "$$",
+              "$$$"
+            ],
+            "title": "Precio"
+          },
+          "imagen": {
+            "type": "string",
+            "maxLength": 500,
+            "pattern": "^https?://\\S+$",
+            "title": "Imagen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "categoria",
+          "descripcion",
+          "direccion",
+          "telefono",
+          "web",
+          "horario",
+          "precio",
+          "imagen"
+        ],
+        "title": "PerfilActualizar",
+        "description": "`capacidad` se ignora si llega: sale del número de mesas activas, no se edita aquí."
       },
       "ReservaCreada": {
         "properties": {
@@ -795,6 +998,12 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }

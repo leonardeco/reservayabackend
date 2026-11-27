@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
-from app.routers import auth, health, reservas, restaurantes
+from app.routers import admin, auth, health, reservas, restaurantes
 from app.services.errores import ErrorDeNegocio
 
 API_PREFIX = "/api/v1"
@@ -32,7 +32,7 @@ def create_app() -> FastAPI:
             allow_headers=["Authorization", "Content-Type"],
         )
 
-    for modulo in (health, restaurantes, reservas, auth):
+    for modulo in (health, restaurantes, reservas, auth, admin):
         app.include_router(modulo.router, prefix=API_PREFIX)
     return app
 
