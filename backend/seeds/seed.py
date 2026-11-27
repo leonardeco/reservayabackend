@@ -1,13 +1,15 @@
 """Siembra idempotente del catálogo inicial: python -m seeds.seed (desde backend/)."""
 
-from datetime import time
+from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.seguridad import HashContrasena
 from app.db.session import SessionLocal
-from app.models import Administrador, HorarioTurno, Mesa, Restaurante
+from app.models import Administrador, HorarioTurno, Mesa, Reserva, Restaurante
+from app.services.auth import normalizar_usuario
 from app.services.restaurantes import actualizar_texto_busqueda
 
 RESTAURANTES: list[dict] = [
@@ -168,6 +170,25 @@ def _sembrar_mesas_y_turnos(db: Session, restaurante: Restaurante) -> None:
 # prototipo muestra en pantalla, por eso pueden estar aquí.
 ADMIN_DEMO = {"slug": "la-terraza", "usuario": "laterraza", "password": "terraza123"}  # noqa: S105
 
+# Reservas de hoy para La Terraza: (cliente, teléfono, hora, personas, mesa, estado).
+RESERVAS_HOY: list[tuple[str, str, str, int, str, str]] = [
+    ("Juan García", "+57 300 000 0001", "20:00", 2, "Mesa 1", "confirmada"),
+    ("María López", "+57 310 000 0002", "19:30", 4, "Mesa 3", "confirmada"),
+    ("Carlos Ruiz", "+57 320 000 0003", "21:00", 3, "Mesa 4", "pendiente"),
+    ("Ana Martínez", "+57 315 000 0004", "20:30", 6, "Mesa 6", "confirmada"),
+    ("Pedro Sosa", "+57 311 000 0005", "13:00", 2, "Mesa 2", "cancelada"),
+    ("Laura Torres", "+57 300 000 0006", "21:30", 5, "Mesa 5", "pendiente"),
+]
+
+# Para los demás días del mes y de la semana: (hora, mesa, personas).
+RESERVAS_OTROS_DIAS: list[tuple[str, str, int]] = [
+    ("12:00", "Mesa 3", 2),
+    ("19:00", "Mesa 5", 3),
+    ("20:30", "Mesa 6", 5),
+]
+
+CLIENTES = ["Camila Restrepo", "Andrés Molina", "Valentina Cruz", "Diego Herrera"]
+
 
 def _sembrar_admin(db: Session) -> None:
     if db.scalar(select(Administrador.id).where(Administrador.usuario == ADMIN_DEMO["usuario"])):
@@ -182,7 +203,48 @@ def _sembrar_admin(db: Session) -> None:
     )
 
 
-def sembrar(db: Session) -> int:
+def _sembrar_reservas_demo(db: Session, hoy: date) -> None:
+    """Solo la primera vez: si La Terraza ya tiene reservas no se agrega nada."""
+    restaurante = db.scalar(select(Restaurante).where(Restaurante.slug == ADMIN_DEMO["slug"]))
+    if db.scalar(select(Reserva.id).where(Reserva.restaurante_id == restaurante.id).limit(1)):
+        return
+    mesas = {
+        m.etiqueta: m.id
+        for m in db.scalars(select(Mesa).where(Mesa.restaurante_id == restaurante.id))
+    }
+    filas = [
+        (hoy, cliente, telefono, hora, personas, mesa, estado)
+        for cliente, telefono, hora, personas, mesa, estado in RESERVAS_HOY
+    ]
+    inicio_mes = hoy.replace(day=1)
+    fin_semana = hoy + timedelta(days=6 - hoy.weekday())
+    dia = inicio_mes
+    while dia <= fin_semana:
+        if dia != hoy:
+            cuantas = dia.day % len(RESERVAS_OTROS_DIAS) + 1
+            for i, (hora, mesa, personas) in enumerate(RESERVAS_OTROS_DIAS[:cuantas]):
+                cliente = CLIENTES[(dia.day + i) % len(CLIENTES)]
+                filas.append((dia, cliente, "+57 300 000 0000", hora, personas, mesa, "confirmada"))
+        dia += timedelta(days=1)
+
+    for n, (fecha, cliente, telefono, hora, personas, mesa, estado) in enumerate(filas):
+        db.add(
+            Reserva(
+                codigo=f"RY-{fecha:%Y%m%d}-{1000 + n}",
+                restaurante_id=restaurante.id,
+                mesa_id=mesas[mesa],
+                fecha=fecha,
+                hora=time.fromisoformat(hora),
+                personas=personas,
+                nombre=cliente,
+                telefono=telefono,
+                correo=f"{normalizar_usuario(cliente)}@correo.com",
+                estado=estado,
+            )
+        )
+
+
+def sembrar(db: Session, hoy: date | None = None) -> int:
     for datos in RESTAURANTES:
         slug = datos["slug"]
         restaurante = db.scalar(select(Restaurante).where(Restaurante.slug == slug))
@@ -196,6 +258,8 @@ def sembrar(db: Session) -> int:
         db.flush()
         _sembrar_mesas_y_turnos(db, restaurante)
     _sembrar_admin(db)
+    db.flush()
+    _sembrar_reservas_demo(db, hoy or datetime.now(ZoneInfo("America/Bogota")).date())
     db.commit()
     return len(RESTAURANTES)
 

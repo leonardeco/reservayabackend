@@ -36,3 +36,13 @@ class CredencialesInvalidas(ErrorDeNegocio):
 class NoAutenticado(ErrorDeNegocio):
     status_code = 401
     codigo = "no_autenticado"
+
+
+class ReservaNoEncontrada(ErrorDeNegocio):
+    status_code = 404
+    codigo = "reserva_no_encontrada"
+
+
+class CambioDeEstadoInvalido(ErrorDeNegocio):
+    status_code = 409
+    codigo = "cambio_de_estado_invalido"

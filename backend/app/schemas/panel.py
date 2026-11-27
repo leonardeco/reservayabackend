@@ -1,12 +1,66 @@
 """Respuestas del panel del administrador.
 
-Los nombres de campo copian los del objeto `perfil` del componente Perfil del front,
-para conectarlo sin traducir nada.
+Los nombres de campo copian los del front (ReservaItem, DiaSemana, FranjaHoraria y el
+objeto `perfil` del componente Perfil) para conectarlo sin traducir nada.
 """
 
+from datetime import date
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, StringConstraints
+
+EtiquetaEstado = Literal["Pendiente", "Confirmada", "Cancelada"]
+
+
+class ReservaPanel(BaseModel):
+    id: int
+    codigo: str
+    cliente: str
+    telefono: str
+    correo: str
+    hora: str
+    personas: int
+    mesa: str
+    estado: EtiquetaEstado
+    notas: str
+
+
+class ResumenDia(BaseModel):
+    reservas_hoy: int
+    mesas_totales: int
+    mesas_disponibles: int
+    ocupacion: int
+    pendientes: int
+
+
+class ReservasDelDia(BaseModel):
+    fecha: date
+    resumen: ResumenDia
+    reservas: list[ReservaPanel]
+
+
+class CambioEstado(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    estado: Literal["Confirmada", "Cancelada"]
+
+
+class DiaSemana(BaseModel):
+    dia: str
+    porcentaje: int
+
+
+class FranjaHoraria(BaseModel):
+    hora: str
+    reservas: int
+
+
+class Estadisticas(BaseModel):
+    reservas_mes: int
+    ocupacion_promedio: int
+    calificacion: float
+    ocupacion_semanal: list[DiaSemana]
+    franjas: list[FranjaHoraria]
 
 
 def _texto(maximo: int, minimo: int = 1):
