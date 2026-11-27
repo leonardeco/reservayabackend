@@ -26,3 +26,13 @@ class FueraDeHorario(ErrorDeNegocio):
 class SinMesaDisponible(ErrorDeNegocio):
     status_code = 409
     codigo = "sin_mesa_disponible"
+
+
+class CredencialesInvalidas(ErrorDeNegocio):
+    status_code = 401
+    codigo = "credenciales_invalidas"
+
+
+class NoAutenticado(ErrorDeNegocio):
+    status_code = 401
+    codigo = "no_autenticado"

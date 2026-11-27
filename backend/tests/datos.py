@@ -2,13 +2,15 @@
 
 from datetime import UTC, date, datetime, time
 
-from app.models import HorarioTurno, Mesa, Reserva, Restaurante
+from app.core.seguridad import HashContrasena
+from app.models import Administrador, HorarioTurno, Mesa, Reserva, Restaurante
 
 # Lunes 9 nov 2026, 10:00 en Bogotá (UTC-5).
 AHORA = datetime(2026, 11, 9, 15, 0, tzinfo=UTC)
 LUNES = date(2026, 11, 9)
 MARTES = date(2026, 11, 10)
 MIERCOLES = date(2026, 11, 11)
+CLAVE = "terraza123"
 
 
 def crear_restaurante(db, slug="prueba", nombre="Prueba", dias=(0, 1)) -> Restaurante:
@@ -47,6 +49,18 @@ def crear_restaurante(db, slug="prueba", nombre="Prueba", dias=(0, 1)) -> Restau
     )
     db.commit()
     return r
+
+
+def crear_admin(db, restaurante, usuario="prueba", clave=CLAVE, activo=True) -> Administrador:
+    admin = Administrador(
+        usuario=usuario,
+        password_hash=HashContrasena.generar(clave),
+        restaurante_id=restaurante.id,
+        activo=activo,
+    )
+    db.add(admin)
+    db.commit()
+    return admin
 
 
 def mesa(db, restaurante, etiqueta) -> Mesa:

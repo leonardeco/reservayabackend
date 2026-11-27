@@ -5,8 +5,9 @@ from datetime import time
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.seguridad import HashContrasena
 from app.db.session import SessionLocal
-from app.models import HorarioTurno, Mesa, Restaurante
+from app.models import Administrador, HorarioTurno, Mesa, Restaurante
 from app.services.restaurantes import actualizar_texto_busqueda
 
 RESTAURANTES: list[dict] = [
@@ -163,6 +164,24 @@ def _sembrar_mesas_y_turnos(db: Session, restaurante: Restaurante) -> None:
                 )
 
 
+# Administrador de demostración: son las mismas credenciales que el login del
+# prototipo muestra en pantalla, por eso pueden estar aquí.
+ADMIN_DEMO = {"slug": "la-terraza", "usuario": "laterraza", "password": "terraza123"}  # noqa: S105
+
+
+def _sembrar_admin(db: Session) -> None:
+    if db.scalar(select(Administrador.id).where(Administrador.usuario == ADMIN_DEMO["usuario"])):
+        return
+    restaurante = db.scalar(select(Restaurante).where(Restaurante.slug == ADMIN_DEMO["slug"]))
+    db.add(
+        Administrador(
+            usuario=ADMIN_DEMO["usuario"],
+            password_hash=HashContrasena.generar(ADMIN_DEMO["password"]),
+            restaurante_id=restaurante.id,
+        )
+    )
+
+
 def sembrar(db: Session) -> int:
     for datos in RESTAURANTES:
         slug = datos["slug"]
@@ -176,6 +195,7 @@ def sembrar(db: Session) -> int:
         actualizar_texto_busqueda(restaurante)
         db.flush()
         _sembrar_mesas_y_turnos(db, restaurante)
+    _sembrar_admin(db)
     db.commit()
     return len(RESTAURANTES)
 
@@ -183,7 +203,7 @@ def sembrar(db: Session) -> int:
 def main() -> None:
     with SessionLocal() as db:
         total = sembrar(db)
-    print(f"Catálogo sembrado: {total} restaurantes")
+    print(f"Catálogo sembrado: {total} restaurantes, administrador {ADMIN_DEMO['usuario']}")
 
 
 if __name__ == "__main__":
