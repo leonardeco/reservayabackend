@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.routers import health
+from app.routers import health, restaurantes
 
 API_PREFIX = "/api/v1"
 
@@ -25,7 +25,7 @@ def create_app() -> FastAPI:
             allow_headers=["Authorization", "Content-Type"],
         )
 
-    for modulo in (health,):
+    for modulo in (health, restaurantes):
         app.include_router(modulo.router, prefix=API_PREFIX)
     return app
 

@@ -18,6 +18,7 @@ source .venv/Scripts/activate
 pip install -r requirements-dev.txt
 cp .env.example .env
 alembic upgrade head
+python -m seeds.seed     # restaurantes, mesas y horarios de ejemplo
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -26,7 +27,29 @@ uvicorn app.main:app --reload --port 8000
 
 ## Endpoints
 
-Por ahora la API solo expone `GET /api/v1/health`, que revisa la conexión con la base de datos. Cada historia de usuario agrega sus rutas.
+Todas las rutas empiezan por `/api/v1`. Los errores responden `{"detail": "<codigo>"}`.
+
+| Historia | Método y ruta | Qué hace |
+|---|---|---|
+| HU01 | `GET /restaurantes` | Lista con filtros `q`, `zona`, `categoria`, `precio`, `rating_min`. Con `fecha` y `personas` solo devuelve los que tienen alguna franja libre |
+| HU01 | `GET /restaurantes/{slug}` | Detalle de un restaurante |
+| HU01 | `GET /restaurantes/{slug}/disponibilidad?fecha=&personas=` | Franjas del día (`libre` / `agotada`) |
+
+### Errores más comunes
+
+| Código HTTP | `detail` | Cuándo |
+|---|---|---|
+| 404 | `restaurante_no_encontrado` | El restaurante no existe |
+| 422 | `fecha_fuera_de_rango` | Fecha pasada o más allá de la antelación permitida |
+
+## Estructura (orientada a objetos)
+
+| Capa | Carpeta | Clases principales |
+|---|---|---|
+| Modelos (tablas) | `app/models/` | `Restaurante`, `Mesa`, `HorarioTurno`, `BloqueoFecha` |
+| Esquemas (entrada/salida) | `app/schemas/` | `RestauranteRead`, `DisponibilidadRead` |
+| Servicios (reglas) | `app/services/` | `calcular_disponibilidad` |
+| Rutas | `app/routers/` | Reciben la petición y delegan en los servicios |
 
 ## Despliegue en Render
 
@@ -34,7 +57,7 @@ El archivo `render.yaml` (en la raíz del repositorio) crea la API y su base Pos
 
 1. En Render: **New → Blueprint** y elegir el repositorio.
 2. Render crea `reservaya-api` y `reservaya-db` y conecta `DATABASE_URL`.
-3. Al arrancar corre `alembic upgrade head`.
+3. Al arrancar corre `alembic upgrade head` y `python -m seeds.seed`, así que la base queda lista con datos de ejemplo.
 4. Probar `https://reservaya-api.onrender.com/api/v1/health`.
 
 El plan gratuito se duerme tras un rato sin uso: la primera petición tarda unos segundos en responder.
