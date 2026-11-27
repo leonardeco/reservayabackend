@@ -304,6 +304,60 @@
           }
         }
       }
+    },
+    "/api/v1/restaurantes/{slug}/reservas": {
+      "post": {
+        "tags": [
+          "reservas"
+        ],
+        "summary": "Crear Reserva",
+        "operationId": "crear_reserva_api_v1_restaurantes__slug__reservas_post",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "title": "Slug"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReservaCrear"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservaCreada"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -399,6 +453,127 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ReservaCreada": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "restaurante": {
+            "type": "string",
+            "title": "Restaurante"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "ubicacion": {
+            "type": "string",
+            "title": "Ubicacion"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha"
+          },
+          "hora": {
+            "type": "string",
+            "title": "Hora"
+          },
+          "personas": {
+            "type": "integer",
+            "title": "Personas"
+          },
+          "mesa": {
+            "type": "string",
+            "title": "Mesa"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "correo": {
+            "type": "string",
+            "title": "Correo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "restaurante",
+          "slug",
+          "ubicacion",
+          "fecha",
+          "hora",
+          "personas",
+          "mesa",
+          "estado",
+          "nombre",
+          "correo"
+        ],
+        "title": "ReservaCreada"
+      },
+      "ReservaCrear": {
+        "properties": {
+          "fecha": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha"
+          },
+          "hora": {
+            "type": "string",
+            "format": "time",
+            "title": "Hora"
+          },
+          "personas": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Personas"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nombre"
+          },
+          "telefono": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 7,
+            "pattern": "^\\+?[0-9 ()-]+$",
+            "title": "Telefono"
+          },
+          "correo": {
+            "type": "string",
+            "maxLength": 160,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Correo"
+          },
+          "notas": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Notas",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fecha",
+          "hora",
+          "personas",
+          "nombre",
+          "telefono",
+          "correo"
+        ],
+        "title": "ReservaCrear",
+        "description": "Lo que envía el formulario de reserva (mismos campos que ReservationService del front)."
       },
       "RestauranteRead": {
         "properties": {
