@@ -358,6 +358,47 @@
           }
         }
       }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "autenticación"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRespuesta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -453,6 +494,68 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "LoginEntrada": {
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Usuario"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "usuario",
+          "password"
+        ],
+        "title": "LoginEntrada"
+      },
+      "LoginRespuesta": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo",
+            "default": "Bearer"
+          },
+          "vence": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Vence"
+          },
+          "usuario": {
+            "type": "string",
+            "title": "Usuario"
+          },
+          "restaurante": {
+            "type": "string",
+            "title": "Restaurante"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "vence",
+          "usuario",
+          "restaurante",
+          "slug"
+        ],
+        "title": "LoginRespuesta"
       },
       "ReservaCreada": {
         "properties": {
