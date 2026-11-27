@@ -26,3 +26,23 @@ class FueraDeHorario(ErrorDeNegocio):
 class SinMesaDisponible(ErrorDeNegocio):
     status_code = 409
     codigo = "sin_mesa_disponible"
+
+
+class CredencialesInvalidas(ErrorDeNegocio):
+    status_code = 401
+    codigo = "credenciales_invalidas"
+
+
+class NoAutenticado(ErrorDeNegocio):
+    status_code = 401
+    codigo = "no_autenticado"
+
+
+class ReservaNoEncontrada(ErrorDeNegocio):
+    status_code = 404
+    codigo = "reserva_no_encontrada"
+
+
+class CambioDeEstadoInvalido(ErrorDeNegocio):
+    status_code = 409
+    codigo = "cambio_de_estado_invalido"

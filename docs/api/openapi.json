@@ -358,10 +358,296 @@
           }
         }
       }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "autenticación"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRespuesta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/reservas": {
+      "get": {
+        "tags": [
+          "panel del administrador"
+        ],
+        "summary": "Reservas Del Dia",
+        "operationId": "reservas_del_dia_api_v1_admin_reservas_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fecha",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fecha"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservasDelDia"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/reservas/{reserva_id}": {
+      "patch": {
+        "tags": [
+          "panel del administrador"
+        ],
+        "summary": "Cambiar Estado",
+        "operationId": "cambiar_estado_api_v1_admin_reservas__reserva_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reserva_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Reserva Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioEstado"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservaPanel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/estadisticas": {
+      "get": {
+        "tags": [
+          "panel del administrador"
+        ],
+        "summary": "Estadisticas",
+        "operationId": "estadisticas_api_v1_admin_estadisticas_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estadisticas"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/restaurante": {
+      "get": {
+        "tags": [
+          "panel del administrador"
+        ],
+        "summary": "Ver Perfil",
+        "operationId": "ver_perfil_api_v1_admin_restaurante_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Perfil"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "panel del administrador"
+        ],
+        "summary": "Guardar Perfil",
+        "operationId": "guardar_perfil_api_v1_admin_restaurante_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PerfilActualizar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Perfil"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "CambioEstado": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "Confirmada",
+              "Cancelada"
+            ],
+            "title": "Estado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado"
+        ],
+        "title": "CambioEstado"
+      },
+      "DiaSemana": {
+        "properties": {
+          "dia": {
+            "type": "string",
+            "title": "Dia"
+          },
+          "porcentaje": {
+            "type": "integer",
+            "title": "Porcentaje"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dia",
+          "porcentaje"
+        ],
+        "title": "DiaSemana"
+      },
       "DisponibilidadRead": {
         "properties": {
           "fecha": {
@@ -419,6 +705,63 @@
         ],
         "title": "DisponibilidadRead"
       },
+      "Estadisticas": {
+        "properties": {
+          "reservas_mes": {
+            "type": "integer",
+            "title": "Reservas Mes"
+          },
+          "ocupacion_promedio": {
+            "type": "integer",
+            "title": "Ocupacion Promedio"
+          },
+          "calificacion": {
+            "type": "number",
+            "title": "Calificacion"
+          },
+          "ocupacion_semanal": {
+            "items": {
+              "$ref": "#/components/schemas/DiaSemana"
+            },
+            "type": "array",
+            "title": "Ocupacion Semanal"
+          },
+          "franjas": {
+            "items": {
+              "$ref": "#/components/schemas/FranjaHoraria"
+            },
+            "type": "array",
+            "title": "Franjas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reservas_mes",
+          "ocupacion_promedio",
+          "calificacion",
+          "ocupacion_semanal",
+          "franjas"
+        ],
+        "title": "Estadisticas"
+      },
+      "FranjaHoraria": {
+        "properties": {
+          "hora": {
+            "type": "string",
+            "title": "Hora"
+          },
+          "reservas": {
+            "type": "integer",
+            "title": "Reservas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hora",
+          "reservas"
+        ],
+        "title": "FranjaHoraria"
+      },
       "FranjaRead": {
         "properties": {
           "hora": {
@@ -453,6 +796,201 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "LoginEntrada": {
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Usuario"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "usuario",
+          "password"
+        ],
+        "title": "LoginEntrada"
+      },
+      "LoginRespuesta": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo",
+            "default": "Bearer"
+          },
+          "vence": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Vence"
+          },
+          "usuario": {
+            "type": "string",
+            "title": "Usuario"
+          },
+          "restaurante": {
+            "type": "string",
+            "title": "Restaurante"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "vence",
+          "usuario",
+          "restaurante",
+          "slug"
+        ],
+        "title": "LoginRespuesta"
+      },
+      "Perfil": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "categoria": {
+            "type": "string",
+            "title": "Categoria"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "direccion": {
+            "type": "string",
+            "title": "Direccion"
+          },
+          "telefono": {
+            "type": "string",
+            "title": "Telefono"
+          },
+          "web": {
+            "type": "string",
+            "title": "Web"
+          },
+          "horario": {
+            "type": "string",
+            "title": "Horario"
+          },
+          "capacidad": {
+            "type": "integer",
+            "title": "Capacidad"
+          },
+          "precio": {
+            "type": "string",
+            "title": "Precio"
+          },
+          "imagen": {
+            "type": "string",
+            "title": "Imagen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "categoria",
+          "descripcion",
+          "direccion",
+          "telefono",
+          "web",
+          "horario",
+          "capacidad",
+          "precio",
+          "imagen"
+        ],
+        "title": "Perfil"
+      },
+      "PerfilActualizar": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Nombre"
+          },
+          "categoria": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Categoria"
+          },
+          "descripcion": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Descripcion"
+          },
+          "direccion": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Direccion"
+          },
+          "telefono": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Telefono"
+          },
+          "web": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0,
+            "title": "Web"
+          },
+          "horario": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Horario"
+          },
+          "precio": {
+            "type": "string",
+            "enum": [
+              "$",
+              "$$",
+              "$$$"
+            ],
+            "title": "Precio"
+          },
+          "imagen": {
+            "type": "string",
+            "maxLength": 500,
+            "pattern": "^https?://\\S+$",
+            "title": "Imagen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "categoria",
+          "descripcion",
+          "direccion",
+          "telefono",
+          "web",
+          "horario",
+          "precio",
+          "imagen"
+        ],
+        "title": "PerfilActualizar",
+        "description": "`capacidad` se ignora si llega: sale del número de mesas activas, no se edita aquí."
       },
       "ReservaCreada": {
         "properties": {
@@ -575,6 +1113,95 @@
         "title": "ReservaCrear",
         "description": "Lo que envía el formulario de reserva (mismos campos que ReservationService del front)."
       },
+      "ReservaPanel": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "cliente": {
+            "type": "string",
+            "title": "Cliente"
+          },
+          "telefono": {
+            "type": "string",
+            "title": "Telefono"
+          },
+          "correo": {
+            "type": "string",
+            "title": "Correo"
+          },
+          "hora": {
+            "type": "string",
+            "title": "Hora"
+          },
+          "personas": {
+            "type": "integer",
+            "title": "Personas"
+          },
+          "mesa": {
+            "type": "string",
+            "title": "Mesa"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "Pendiente",
+              "Confirmada",
+              "Cancelada"
+            ],
+            "title": "Estado"
+          },
+          "notas": {
+            "type": "string",
+            "title": "Notas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "codigo",
+          "cliente",
+          "telefono",
+          "correo",
+          "hora",
+          "personas",
+          "mesa",
+          "estado",
+          "notas"
+        ],
+        "title": "ReservaPanel"
+      },
+      "ReservasDelDia": {
+        "properties": {
+          "fecha": {
+            "type": "string",
+            "format": "date",
+            "title": "Fecha"
+          },
+          "resumen": {
+            "$ref": "#/components/schemas/ResumenDia"
+          },
+          "reservas": {
+            "items": {
+              "$ref": "#/components/schemas/ReservaPanel"
+            },
+            "type": "array",
+            "title": "Reservas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fecha",
+          "resumen",
+          "reservas"
+        ],
+        "title": "ReservasDelDia"
+      },
       "RestauranteRead": {
         "properties": {
           "id": {
@@ -653,6 +1280,39 @@
         ],
         "title": "RestauranteRead"
       },
+      "ResumenDia": {
+        "properties": {
+          "reservas_hoy": {
+            "type": "integer",
+            "title": "Reservas Hoy"
+          },
+          "mesas_totales": {
+            "type": "integer",
+            "title": "Mesas Totales"
+          },
+          "mesas_disponibles": {
+            "type": "integer",
+            "title": "Mesas Disponibles"
+          },
+          "ocupacion": {
+            "type": "integer",
+            "title": "Ocupacion"
+          },
+          "pendientes": {
+            "type": "integer",
+            "title": "Pendientes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reservas_hoy",
+          "mesas_totales",
+          "mesas_disponibles",
+          "ocupacion",
+          "pendientes"
+        ],
+        "title": "ResumenDia"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -692,6 +1352,12 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }
