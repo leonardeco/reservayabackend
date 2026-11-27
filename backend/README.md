@@ -34,21 +34,31 @@ Todas las rutas empiezan por `/api/v1`. Los errores responden `{"detail": "<codi
 | HU01 | `GET /restaurantes` | Lista con filtros `q`, `zona`, `categoria`, `precio`, `rating_min`. Con `fecha` y `personas` solo devuelve los que tienen alguna franja libre |
 | HU01 | `GET /restaurantes/{slug}` | Detalle de un restaurante |
 | HU01 | `GET /restaurantes/{slug}/disponibilidad?fecha=&personas=` | Franjas del día (`libre` / `agotada`) |
+| HU02 | `POST /restaurantes/{slug}/reservas` | Crea la reserva, asigna mesa y devuelve el código `RY-AAAAMMDD-NNNN` |
 
 ### Errores más comunes
 
 | Código HTTP | `detail` | Cuándo |
 |---|---|---|
 | 404 | `restaurante_no_encontrado` | El restaurante no existe |
+| 409 | `fuera_de_horario` | El restaurante no atiende a esa hora, la hora ya pasó o el día está bloqueado |
+| 409 | `sin_mesa_disponible` | No queda mesa para ese número de personas a esa hora |
 | 422 | `fecha_fuera_de_rango` | Fecha pasada o más allá de la antelación permitida |
+
+### Reglas de reserva
+
+- Una reserva ocupa la mesa 90 minutos desde la hora elegida.
+- Se acepta cualquier hora dentro del horario del día (por ejemplo 19:30 aunque las franjas sean cada 90 min).
+- Se asigna la mesa más pequeña donde quepa el grupo, para dejar libres las grandes.
 
 ## Estructura (orientada a objetos)
 
 | Capa | Carpeta | Clases principales |
 |---|---|---|
-| Modelos (tablas) | `app/models/` | `Restaurante`, `Mesa`, `HorarioTurno`, `BloqueoFecha` |
-| Esquemas (entrada/salida) | `app/schemas/` | `RestauranteRead`, `DisponibilidadRead` |
-| Servicios (reglas) | `app/services/` | `calcular_disponibilidad` |
+| Modelos (tablas) | `app/models/` | `Restaurante`, `Mesa`, `HorarioTurno`, `BloqueoFecha`, `Reserva` |
+| Esquemas (entrada/salida) | `app/schemas/` | `RestauranteRead`, `DisponibilidadRead`, `ReservaCrear`, `ReservaCreada` |
+| Servicios (reglas) | `app/services/` | `calcular_disponibilidad`, `ReservaService` |
+| Errores | `app/services/errores.py` | `ErrorDeNegocio` y sus subclases, cada una con su código HTTP |
 | Rutas | `app/routers/` | Reciben la petición y delegan en los servicios |
 
 ## Despliegue en Render

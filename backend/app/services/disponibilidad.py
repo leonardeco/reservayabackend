@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import BloqueoFecha, HorarioTurno, Mesa, Restaurante
+from app.services.ocupacion import ocupacion_por_hora
 
 
 @dataclass(frozen=True)
@@ -100,7 +101,8 @@ def calcular_disponibilidad(
             motivo="grupo_grande" if grande else "sin_mesas",
         )
 
-    ocupadas = ocupadas or {}
+    if ocupadas is None:
+        ocupadas = ocupacion_por_hora(db, restaurante, fecha, horas)
     franjas = [
         Franja(h, "libre" if compatibles - ocupadas.get(h, set()) else "agotada") for h in horas
     ]
